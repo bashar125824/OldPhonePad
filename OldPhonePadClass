@@ -1,0 +1,115 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+public class OldPhonePad
+{
+    private static readonly Dictionary<char, string> Keypad = new Dictionary<char, string>
+    {
+        {'1', "&'("},
+        {'2', "ABC"},
+        {'3', "DEF"},
+        {'4', "GHI"},
+        {'5', "JKL"},
+        {'6', "MNO"},
+        {'7', "PQRS"},
+        {'8', "TUV"},
+        {'9', "WXYZ"},
+        {'0', " "}
+    };
+
+    public static string ConvertInput(string input)
+    {
+        StringBuilder output = new StringBuilder();
+        char currentChar = '\0';
+        int pressCount = 0;
+        int index = 0;
+
+        while (index < input.Length)
+        {
+            char c = input[index];
+
+            if (c == '#')
+            {
+                // Add the last character if any presses were pending
+                if (pressCount > 0 && currentChar != '\0')
+                {
+                    output.Append(GetLetter(currentChar, pressCount));
+                }
+                break;
+            }
+            else if (c == '*')
+            {
+                // Add the last character if any presses were pending
+                if (pressCount > 0 && currentChar != '\0')
+                {
+                    output.Append(GetLetter(currentChar, pressCount));
+                    pressCount = 0;
+                    currentChar = '\0';
+                }
+
+                // Perform backspace
+                if (output.Length > 0)
+                {
+                    output.Remove(output.Length - 1, 1);
+                }
+                index++;
+            }
+            else if (c == ' ')
+            {
+                // Space indicates a pause - add current character and reset
+                if (pressCount > 0 && currentChar != '\0')
+                {
+                    output.Append(GetLetter(currentChar, pressCount));
+                    pressCount = 0;
+                    currentChar = '\0';
+                }
+                index++;
+            }
+            else if (char.IsDigit(c))
+            {
+                if (c == currentChar)
+                {
+                    pressCount++;
+                }
+                else
+                {
+                    // Different button pressed - add previous character if any
+                    if (pressCount > 0 && currentChar != '\0')
+                    {
+                        output.Append(GetLetter(currentChar, pressCount));
+                    }
+                    currentChar = c;
+                    pressCount = 1;
+                }
+                index++;
+            }
+            else
+            {
+                // Ignore invalid characters
+                index++;
+            }
+        }
+
+        return output.ToString();
+    }
+
+    private static char GetLetter(char button, int pressCount)
+    {
+        if (!Keypad.ContainsKey(button))
+        {
+            return '\0';
+        }
+
+        string letters = Keypad[button];
+        // Adjust for 0-based index and wrap around if needed
+        int index = (pressCount - 1) % letters.Length;
+        return letters[index];
+    }
+
+    // This method matches the required signature from the challenge
+    public static string OldPhonePad(string input)
+    {
+        return ConvertInput(input);
+    }
+}
