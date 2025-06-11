@@ -1,0 +1,45 @@
+using Xunit;
+using OldPhonePad;
+
+namespace OldPhonePad.Tests
+{
+    public class OldPhonePadTests
+    {
+        [Theory]
+        [InlineData("33#", "E")]
+        [InlineData("227*#", "B")]
+        [InlineData("4433555 555666#", "HELLO")]
+        [InlineData("8 88777444666*664#", "TURING")]
+        [InlineData("222 2 22#", "CAB")]
+        [InlineData("1#", "&")]
+        [InlineData("111#", "'")]
+        [InlineData("1111#", "(")]
+        [InlineData("11111#", "&")] // Wraps around
+        [InlineData("0#", " ")]
+        [InlineData("7#", "P")]
+        [InlineData("77#", "Q")]
+        [InlineData("777#", "R")]
+        [InlineData("7777#", "S")]
+        [InlineData("77777#", "P")] // Wraps around
+        [InlineData("123*#", "")]
+        [InlineData("123*456#", "G")]
+        [InlineData("", "")]
+        [InlineData("#", "")]
+        [InlineData("*#", "")]
+        public void Convert_ValidInput_ReturnsExpectedOutput(string input, string expected)
+        {
+            var converter = new OldPhonePadConverter();
+            var result = converter.Convert(input);
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void OldPhonePad_StaticMethod_MatchesInstanceMethod()
+        {
+            string input = "4433555 555666#";
+            var instanceResult = new OldPhonePadConverter().Convert(input);
+            var staticResult = OldPhonePadConverter.OldPhonePad(input);
+            Assert.Equal(instanceResult, staticResult);
+        }
+    }
+}
