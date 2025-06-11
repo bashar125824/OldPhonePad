@@ -1,0 +1,69 @@
+public class OldPhone
+{
+    private static readonly Dictionary<char, string> keyMap = new()
+    {
+        { '1', "&'(" },
+        { '2', "ABC" },
+        { '3', "DEF" },
+        { '4', "GHI" },
+        { '5', "JKL" },
+        { '6', "MNO" },
+        { '7', "PQRS" },
+        { '8', "TUV" },
+        { '9', "WXYZ" },
+        { '0', " " }
+    };
+
+    public static string OldPhonePad(string input)
+    {
+        if (string.IsNullOrEmpty(input)) return "";
+
+        StringBuilder result = new();
+        StringBuilder currentSequence = new();
+        char lastChar = '\0';
+
+        foreach (char c in input)
+        {
+            if (c == '#') break;
+
+            if (c == '*')
+            {
+                if (result.Length > 0) result.Remove(result.Length - 1, 1);
+                currentSequence.Clear();
+                continue;
+            }
+
+            if (c == ' ')
+            {
+                AppendCurrentSequence(result, currentSequence);
+                currentSequence.Clear();
+                lastChar = '\0';
+                continue;
+            }
+
+            if (lastChar != '\0' && c != lastChar)
+            {
+                AppendCurrentSequence(result, currentSequence);
+                currentSequence.Clear();
+            }
+
+            currentSequence.Append(c);
+            lastChar = c;
+        }
+
+        AppendCurrentSequence(result, currentSequence);
+        return result.ToString();
+    }
+
+    private static void AppendCurrentSequence(StringBuilder result, StringBuilder sequence)
+    {
+        if (sequence.Length == 0) return;
+
+        char key = sequence[0];
+        if (!keyMap.ContainsKey(key)) return;
+
+        string letters = keyMap[key];
+        int index = (sequence.Length - 1) % letters.Length;
+        result.Append(letters[index]);
+    }
+}
